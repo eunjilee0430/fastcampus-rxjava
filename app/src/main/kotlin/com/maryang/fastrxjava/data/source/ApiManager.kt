@@ -34,7 +34,7 @@ object ApiManager {
                 }
                 .build())
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // rxjava 쓰려면 추가해야함.
             .build()
     }
 
