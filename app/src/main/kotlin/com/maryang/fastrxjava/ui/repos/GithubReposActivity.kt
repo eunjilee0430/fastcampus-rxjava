@@ -8,11 +8,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.maryang.fastrxjava.base.BaseActivity
 import com.maryang.fastrxjava.entity.GithubRepo
 import com.maryang.fastrxjava.event.DataObserver
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableObserver
+import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_github_repos.*
 
-
 class GithubReposActivity : BaseActivity() {
+
 
     private val viewModel: GithubReposViewModel by lazy {
         GithubReposViewModel()
@@ -46,13 +49,17 @@ class GithubReposActivity : BaseActivity() {
         subscribeDataObserver()
     }
 
+//    private var searchDisposable: Disposable? = null
+//    private var dataDisposable: Disposable? = null
+//    private val comm = CompositeDisposable() // CompositeDisposable 만들고, 한번에 dispose()
+
     private fun subscribeSearch() {
-        viewModel.searchGithubReposSubject()
+        compositeDisposable += viewModel.searchGithubReposSubject()
             .doOnNext {
                 if (it) showLoading()
             }
             .switchMap { viewModel.searchGithubReposObservable() }
-            .subscribe(object : DisposableObserver<List<GithubRepo>>() {
+            .subscribeWith(object : DisposableObserver<List<GithubRepo>>() { // observer 를 넣으면 void   ->   subscribeWith 를 사용하자.
                 override fun onNext(t: List<GithubRepo>) {
                     hideLoading()
                     adapter.items = t
@@ -68,9 +75,9 @@ class GithubReposActivity : BaseActivity() {
     }
 
     private fun subscribeDataObserver() {
-        DataObserver.observe()
+        compositeDisposable += DataObserver.observe()
             .filter { it is GithubRepo }
-            .subscribe { repo ->
+            .subscribe { repo ->                            // consumer 를 넣으면 Disposable
                 adapter.items.find {
                     it.id == repo.id
                 }?.apply {
@@ -87,5 +94,13 @@ class GithubReposActivity : BaseActivity() {
     private fun hideLoading() {
         loading.visibility = View.GONE
         refreshLayout.isRefreshing = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        searchDisposable?.dispose()
+//        dataDisposable?.dispose()
+
+//        comm.dispose() // BaseActivity에서 수행함.
     }
 }

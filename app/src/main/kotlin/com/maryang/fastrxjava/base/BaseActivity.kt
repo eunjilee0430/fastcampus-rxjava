@@ -18,3 +18,12 @@ abstract class BaseActivity : AppCompatActivity() {
         return true
     }
 }
+
+abstract  class BaseViewModelActivity : BaseActivity() {
+    abstract var viewModel: BaseViewModel
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.onDestroy()
+    }
+}

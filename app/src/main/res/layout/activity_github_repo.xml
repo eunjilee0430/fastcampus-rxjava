@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"> <!--이미지를 one depth에 짤 수 있다: 성능에 좋음. -->
 
     <ImageView
         android:id="@+id/ownerImage"
