@@ -18,8 +18,9 @@ class GithubReposActivity : BaseViewModelActivity() {
     override val viewModel: GithubReposViewModel by lazy {
         GithubReposViewModel()
     }
+
     private val adapter: GithubReposAdapter by lazy {
-        GithubReposAdapter()
+        GithubReposAdapter(viewModel)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

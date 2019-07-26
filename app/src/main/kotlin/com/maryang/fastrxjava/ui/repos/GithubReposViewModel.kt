@@ -59,4 +59,14 @@ class GithubReposViewModel : BaseViewModel() {
         }
             .applySchedulersExtension()
             .toObservable()
+
+
+    // githubRepoViewModel과 동일한 메소드인데, 중복해서 가지고 있지 않을 수 있는 좋은 방법?
+    fun onClickStar(repo: GithubRepo) =
+        (if (repo.star)
+            repository.unstar(repo.owner.userName, repo.name)
+        else
+            repository.star(repo.owner.userName, repo.name))
+            .observeOn(AndroidSchedulers.mainThread())
+
 }
