@@ -21,6 +21,16 @@ class GithubRepository {
             }
             .subscribeOn(Schedulers.io())
 
+    fun searchSortedGithubRepo(q: String, sort: String, order: String): Single<List<GithubRepo>> =
+        api.searchSortedRepos(q, sort, order)
+            .map {
+                it.asJsonObject.getAsJsonArray("items")
+                    .map { repo ->
+                        ApiManager.gson.fromJson(repo, GithubRepo::class.java)!!
+                    }
+            }
+            .subscribeOn(Schedulers.io())
+
     fun checkStar(owner: String, repo: String): Completable =
         api.checkStar(owner, repo)
             .subscribeOn(Schedulers.io())

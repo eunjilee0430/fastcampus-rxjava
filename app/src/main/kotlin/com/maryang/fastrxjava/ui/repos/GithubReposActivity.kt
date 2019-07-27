@@ -11,6 +11,8 @@ import com.maryang.fastrxjava.event.DataObserver
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.rxkotlin.plusAssign
 import kotlinx.android.synthetic.main.activity_github_repos.*
+import android.widget.AdapterView
+import org.jetbrains.anko.toast
 
 
 class GithubReposActivity : BaseViewModelActivity() {
@@ -23,6 +25,9 @@ class GithubReposActivity : BaseViewModelActivity() {
         GithubReposAdapter(viewModel)
     }
 
+    private var sorted = "[SORT]"
+    private var order = "[ORDER]"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(com.maryang.fastrxjava.R.layout.activity_github_repos)
@@ -31,6 +36,26 @@ class GithubReposActivity : BaseViewModelActivity() {
         recyclerView.adapter = this.adapter
 
         refreshLayout.setOnRefreshListener { viewModel.searchGithubRepos() }
+
+        sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                sorted = sortSpinner.getItemAtPosition(position).toString()
+                toast(sorted)
+                viewModel.searchGithubRepos()
+            }
+        }
+
+        orderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) { }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                order = orderSpinner.getItemAtPosition(position).toString()
+                toast(order)
+                viewModel.searchGithubRepos()
+            }
+        }
 
         searchText.addTextChangedListener(object : TextWatcher {
 
@@ -53,7 +78,10 @@ class GithubReposActivity : BaseViewModelActivity() {
             .doOnNext {
                 if (it) showLoading()
             }
-            .switchMap { viewModel.searchGithubReposObservable() }
+            .switchMap { // switchMap: 순서보장 (기존 작업 중단), 여러개 값 들어올 때 마지막값만 처리하고 싶을 때.
+                if(sorted == "[SORT]" ||  order == "[ORDER]") viewModel.searchGithubReposObservable()
+                else viewModel.searchSortedGithubReposObservable(sorted, order)
+            }
             .subscribeWith(object : DisposableObserver<List<GithubRepo>>() {
                 override fun onNext(t: List<GithubRepo>) {
                     hideLoading()

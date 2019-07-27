@@ -12,6 +12,14 @@ interface GithubApi {
         @Query("q") search: String
     ): Single<JsonElement>
 
+    @GET("search/repositories")
+    fun searchSortedRepos(
+        @Query("q") search: String,
+        @Query("sort") sort: String,
+        @Query("order") order: String
+    ): Single<JsonElement>
+
+
     @GET("user/starred/{owner}/{repo}")
     fun checkStar(
         @Path("owner") owner: String,

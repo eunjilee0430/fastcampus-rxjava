@@ -14,7 +14,8 @@ import java.util.concurrent.TimeUnit
 
 class GithubReposViewModel : BaseViewModel() {
     private val repository = GithubRepository()
-    private val searchSubject = PublishSubject.create<Pair<String, Boolean>>()
+
+    private val searchSubject = PublishSubject.create<Pair<String, Boolean>>() // publishSubject: 가장 평범, subject() -> 값 발행 시작.
     var searchText = ""
 
     val eventDisposable = EventBus.observe()
@@ -45,6 +46,25 @@ class GithubReposViewModel : BaseViewModel() {
     fun searchGithubReposObservable() =
         Single.create<List<GithubRepo>> { emitter ->
             repository.searchGithubRepos(searchText)
+                .subscribe({
+                    Completable.merge(
+                        it.map { repo ->
+                            repository.checkStar(repo.owner.userName, repo.name)
+                                .doOnComplete { repo.star = true }
+                                .onErrorComplete()
+                        }
+                    ).subscribe {
+                        emitter.onSuccess(it)
+                    }
+                }, {})
+        }
+            .applySchedulersExtension()
+            .toObservable()
+
+
+    fun searchSortedGithubReposObservable(sort: String, order: String) =
+        Single.create<List<GithubRepo>> { emitter ->
+            repository.searchSortedGithubRepo(searchText, sort, order)
                 .subscribe({
                     Completable.merge(
                         it.map { repo ->

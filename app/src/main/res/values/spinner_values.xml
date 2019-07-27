@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sort_array">
+        <item>[SORT]</item>
+        <item>stars</item>
+        <item>forks</item>
+        <item>help-wanted-issues</item>
+        <item>updated</item>
+    </string-array>
+
+    <string-array name="order_array">
+        <item>[ORDER]</item>
+        <item>desc</item>
+        <item>asc</item>
+    </string-array>
+
+</resources>
